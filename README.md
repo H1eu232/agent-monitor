@@ -95,7 +95,7 @@ How the numbers are made:
 | `~/.claude/harness/sessions/<id>.json` | cc-distribution harness hooks | turns, prompts, skills, context, hooks, concerns |
 | `~/.claude/harness/skill-stats.json` | cc-distribution harness hooks | skill loads all time |
 | `~/.claude/harness/gate/<id>.json` | cc-distribution approval gate | review / approval chips |
-| `$TMPDIR/ck-usage-limits-cache.json` | `usage-context-awareness` hook | account usage % |
+| `$TMPDIR/ck-usage-limits-cache.json` | `usage-context-awareness` hook, or `hooks/usage-cache.cjs` | account usage % |
 
 Without the cc-distribution hooks, only live sessions, subagents and token usage are shown.
 
@@ -110,6 +110,14 @@ node hooks/install.cjs --uninstall  # remove it
 ```
 
 The hook command points at this checkout, so keep the repo where it is (or re-run the installer after moving it). Sessions started after installing are recorded; restart open ones.
+
+### Account usage hook (without cc-distribution)
+
+The installer also registers `hooks/usage-cache.cjs` on `UserPromptSubmit` and `Stop`. At most once a minute it starts a detached refresh that calls `api.anthropic.com/api/oauth/usage` with the Claude Code CLI's OAuth token and writes `$TMPDIR/ck-usage-limits-cache.json`, which gives `/usage` the real account % and calibrates this machine's %. The hook returns in ~200 ms, prints nothing and always exits 0.
+
+- It needs the CLI's login file `~/.claude/.credentials.json` (created by `claude` → `/login`). The desktop app keeps its login elsewhere, so on a desktop-only machine the hook stays idle and `/usage` falls back to local estimates.
+- The token is read from that file and sent only to `api.anthropic.com`; it is never printed or copied. An expired token is skipped and left for the CLI to refresh.
+- `api/oauth/usage` is the endpoint Claude Code uses for `/usage`; it is not a documented API and may change.
 
 ## API
 
@@ -139,5 +147,6 @@ lib/usage-local.cjs     transcript scan → per-minute cost buckets; account cac
 lib/usage-view.cjs      session store, calibration, /api/usage payload
 shared/harness-diagnose.cjs   concern rules (copy of cc-distribution hooks/lib/harness-diagnose.cjs)
 hooks/ledger.cjs        optional minimal hook writing the harness ledger; hooks/install.cjs registers it
+hooks/usage-cache.cjs   optional hook caching the account's 5h usage from the CLI login
 public/                 index / concerns / usage pages, charts.js, app.css
 ```
