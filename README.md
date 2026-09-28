@@ -78,6 +78,7 @@ The current 5-hour session and how much of it this machine used:
 - account usage % for the session
 - this machine's % of the session limit, and its share of the account's usage
 - this machine's active time, message count, input/output tokens and API-equivalent cost
+- the account's weekly (7-day) limit % and its reset time, when the usage cache has it
 
 How the numbers are made:
 

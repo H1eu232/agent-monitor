@@ -24,6 +24,7 @@ function render(v) {
       <div class="stat hi"><div class="stat-label">Session</div><div class="stat-value">${hm(w.start)} → ${hm(w.end)}</div><div class="stat-sub">${day(w.start)} · resets in ${left(w.end)}${w.local ? ' (estimated)' : ''}</div></div>
       <div class="stat"><div class="stat-label">Account used</div><div class="stat-value">${acct == null ? '—' : pct(acct)}</div><div class="stat-sub">${esc(acctSub)}</div></div>
       <div class="stat"><div class="stat-label">This machine used</div><div class="stat-value">${mine == null ? '—' : pct(mine)}</div><div class="stat-sub">${esc(mineSub)}</div></div>
+      ${v.weekly ? `<div class="stat"><div class="stat-label">Weekly limit</div><div class="stat-value">${pct(v.weekly.utilization)}</div><div class="stat-sub">account · resets ${day(v.weekly.resetsAt)} ${hm(v.weekly.resetsAt)}</div></div>` : ''}
     </div>
     <div class="card u-now">
       ${acct == null && mine == null ? '' : `<div class="u-meter tall" role="img" aria-label="${acct == null ? 'account unknown' : `${pct(acct)} of the session limit used`}, ${mine == null ? 'this machine unknown' : pct(mine) + ' by this machine'}">
